@@ -181,11 +181,12 @@ class ArcaRequest {
   }
 
   static async block(articleUrl, csrfToken, until) {
+    if(~~until == 0) return;
     await ArcaRequest.checkSession();
 
     const blockInfo = new url.URLSearchParams();
     blockInfo.append('_csrf', csrfToken);
-    blockInfo.append('until', until);
+    blockInfo.append('until', ~~until);
 
     const [ , channelName, articleId ] = articleUrl.match(/b\/(.+)\/(\d+)/);
 
@@ -208,6 +209,7 @@ class ArcaRequest {
       // check which rule violation
       const backupPage = htmlParser.parse(lastArticleList[i].content);
       const backupTitleElement = backupPage.querySelector('.article-head .title');
+      const backupAuthor = backupPage.querySelector('.article-head .user-info').innerText.replace(/\s+/, '');
       const categoryHTML = backupTitleElement.querySelector('span') ? backupTitleElement.querySelector('span').outerHTML : '';
       const backupTitle = backupTitleElement.innerHTML.replace(categoryHTML, '');
       const backupBodyElement = backupPage.querySelector('.article-body');
@@ -257,6 +259,9 @@ class ArcaRequest {
         // 404 Not Found => article is deleted
         console.log(`Article Deleted : ${boardUrl}/${lastArticleList[i].articleId}`);
 
+        // Ignore bot's own article
+        if(backupAuthor == 'sed') continue;
+
         if(violatedRule && violatedRule.monitorStatus == 'removed') {
           if(violatedRule.blockUntil) {
             console.log(`Auto block user`);
@@ -282,7 +287,7 @@ class ArcaRequest {
             ];
             ArcaRequest.writeArticle(boardUrl,
               '',
-              '[복구] ' + backupTitle,
+              `[복구(작성자 ${backupAuthor})] ` + backupTitle,
               `<span style="font-size: 24px;">원본글 내용(추천 ${articleRating[0]}개 / 비추 ${articleRating[1]}개)</span><hr>${articleContent.innerHTML}<hr><span style="font-size: 24px;">댓글 목록(${commentCount}개)</span><hr>${comments}`
             );
           }
