@@ -188,7 +188,7 @@ class ArcaRequest {
     blockInfo.append('_csrf', csrfToken);
     blockInfo.append('until', ~~until);
 
-    const [, boardUrl, articleId] = articleUrl.match(/(.*\/b\/\w+)\/(\d+)/)[1];
+    const [, boardUrl, articleId] = articleUrl.match(/(.*\/b\/\w+)\/(\d+)/);
 
     return fetch(`${boardUrl}/block/article/${articleId}`, {
       method: 'POST',
