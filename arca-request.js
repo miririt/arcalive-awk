@@ -260,7 +260,7 @@ class ArcaRequest {
         console.log(`Article Deleted : ${boardUrl}/${lastArticleList[i].articleId}`);
 
         // Ignore bot's own article
-        if(backupAuthor == 'sed') continue;
+        if(backupAuthor == config.usernick) continue;
 
         if(violatedRule && violatedRule.monitorStatus == 'removed') {
           if(violatedRule.blockUntil) {
