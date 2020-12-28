@@ -275,7 +275,7 @@ class ArcaRequest {
                 'author': comment.querySelector('.user-info').innerText,
                 'content': comment.querySelector('.message').innerHTML.replace('<div class="btn btn-sm btn-more">펼쳐보기▼</div>', '')
               }; })
-              .map(commentInfo => `@${commentInfo.author}${commentInfo.content}`)
+              .map(commentInfo => `[${commentInfo.author}]${commentInfo.content}`)
               .join('');
 
             const commentCount = (backupCommentList ? backupCommentList.querySelectorAll('.comment-wrapper') : []).length;
