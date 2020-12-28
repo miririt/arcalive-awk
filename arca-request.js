@@ -188,9 +188,9 @@ class ArcaRequest {
     blockInfo.append('_csrf', csrfToken);
     blockInfo.append('until', ~~until);
 
-    const [ , channelName, articleId ] = articleUrl.match(/b\/(.+)\/(\d+)/);
+    const [, boardUrl, articleId] = articleUrl.match(/(.*\/b\/\w+)\/(\d+)/)[1];
 
-    return fetch(`https://arca.live/b/${channelName}/block/article/${articleId}`, {
+    return fetch(`${boardUrl}/block/article/${articleId}`, {
       method: 'POST',
       headers: { Cookie: ArcaRequest.makeCookieString(), referer: articleUrl },
       body: blockInfo
