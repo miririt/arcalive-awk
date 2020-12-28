@@ -122,21 +122,41 @@ class ArcaRequest {
   static async writeArticle(boardUrl, category, title, content) {
     try {
       await ArcaRequest.checkSession();
-      const csrfTokens = await ArcaRequest.getCSRFToken(`${boardUrl}/write`, ['_csrf', 'token']);
+      const writePage = await fetch(`${boardUrl}/write`, {
+        'method': 'GET',
+        headers: { Cookie: ArcaRequest.makeCookieString() }
+      })
+      .then(ArcaRequest.loadCookies)
+      .then(res => res.text())
+      .then(text => htmlParser.parse(text));
+  
+      const tokens = {};
+  
+      const inputElements = writePage.querySelectorAll('#article_write_form input');
+      for(const key in inputElements) {
+        if(inputElements[key].attributes.name == '_csrf') {
+          tokens.csrf = inputElements[key].attributes.value;
+        }
+        if(inputElements[key].attributes.name == 'token') {
+          tokens.token = inputElements[key].attributes.value;
+        }
+      }
 
       const articleInfo = new url.URLSearchParams();
-      articleInfo.append('_csrf', csrfTokens['_csrf']);
-      articleInfo.append('token', csrfTokens['token']);
+      articleInfo.append('_csrf', tokens.csrf);
+      articleInfo.append('token', tokens.token);
       articleInfo.append('contentType', 'html');
       articleInfo.append('category', category);
       articleInfo.append('title', title);
       articleInfo.append('content', content);
 
+      console.log(articleInfo.toString());;
+
       return fetch(`${boardUrl}/write`, {
         'method': 'POST',
         headers: { Cookie: ArcaRequest.makeCookieString(), referer: `${boardUrl}/write` },
         body: articleInfo
-      }).then(res => console.log(res.status));
+      });
     } catch(err) {
       console.error(err);
     }
@@ -154,7 +174,7 @@ class ArcaRequest {
         'method': 'POST',
         headers: { Cookie: ArcaRequest.makeCookieString(), referer: `${articleUrl}/delete` },
         body: articleInfo
-      }).then(res => console.log(res.status));
+      });
     } catch(err) {
       console.error(err);
     }
@@ -173,7 +193,7 @@ class ArcaRequest {
       method: 'POST',
       headers: { Cookie: ArcaRequest.makeCookieString(), referer: articleUrl },
       body: blockInfo
-    }).then(res => console.log(res.status));
+    });
   }
 
   static async check(boardUrl) {
@@ -218,7 +238,6 @@ class ArcaRequest {
       try {
         const loadResult = await ArcaRequest.loadArticle(boardUrl, lastArticleList[i].articleId)
         .catch(err => { throw err; });
-        console.log(violatedRule);
         if(loadResult == null) {
           throw 'Error';
         }
@@ -226,8 +245,8 @@ class ArcaRequest {
         if(violatedRule && violatedRule.monitorStatus == 'on') {
           if(violatedRule.blockUntil) {
             console.log(`Auto block user`);
-            const csrfToken = backupPage.querySelector('form input').attributes.value;
-            ArcaRequest.block(`${boardUrl}/${lastArticleList[i].articleId}`, csrfToken, 3600);
+            const csrfToken = backupPage.querySelector('.user-block form input').attributes.value;
+            ArcaRequest.block(`${boardUrl}/${lastArticleList[i].articleId}`, csrfToken, violatedRule.blockUntil);
           }
           if(violatedRule.remove) {
             console.log(`Auto delete article`);
@@ -241,14 +260,30 @@ class ArcaRequest {
         if(violatedRule && violatedRule.monitorStatus == 'removed') {
           if(violatedRule.blockUntil) {
             console.log(`Auto block user`);
-            const csrfToken = backupPage.querySelector('form input').attributes.value;
-            ArcaRequest.block(`${boardUrl}/${lastArticleList[i].articleId}`, csrfToken, 3600);
+            const csrfToken = backupPage.querySelector('.user-block form input').attributes.value;
+            ArcaRequest.block(`${boardUrl}/${lastArticleList[i].articleId}`, csrfToken, violatedRule.blockUntil);
           }
           if(violatedRule.recover) {
             console.log(`Auto recover article`);
+            const comments = (backupCommentList ? backupCommentList.querySelectorAll('.comment-wrapper') : [])
+              .map(comment => { return {
+                'author': comment.querySelector('.user-info').innerText,
+                'content': comment.querySelector('.message').innerHTML.replace('<div class="btn btn-sm btn-more">펼쳐보기▼</div>', '')
+              }; })
+              .map(commentInfo => `@${commentInfo.author}${commentInfo.content}`)
+              .join('');
+
+            const commentCount = (backupCommentList ? backupCommentList.querySelectorAll('.comment-wrapper') : []).length;
+
+            const articleContent = backupBodyElement.querySelector('.fr-view.article-content');
+            const articleRating = [
+              backupBodyElement.querySelector('#ratingUp').innerText,
+              backupBodyElement.querySelector('#ratingDown').innerText
+            ];
             ArcaRequest.writeArticle(boardUrl,
-              backupTitle,
-              backupBodyElement.innerHTML + '<hr>' + (backupCommentList ? backupCommentList.innerHTML : '')
+              '',
+              '[복구] ' + backupTitle,
+              `<span style="font-size: 24px;">원본글 내용(추천 ${articleRating[0]}개 / 비추 ${articleRating[1]}개)</span><hr>${articleContent.innerHTML}<hr><span style="font-size: 24px;">댓글 목록(${commentCount}개)</span><hr>${comments}`
             );
           }
         }

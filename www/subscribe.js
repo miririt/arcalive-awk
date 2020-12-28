@@ -18,16 +18,17 @@ function addRule() {
 }
 
 function parseRule(ruleElement) {
-  const monitorTab = ruleElement.querySelector('input[name=monitorTab]').value;
-  const monitorWord = ruleElement.querySelector('input[name=monitorWord]').value;
-  const shouldHaveComment = ruleElement.querySelector('input[name=shouldHaveComment]').checked;
-  const monitorStatus = ruleElement.querySelector('input[name=monitorStatus]:checked').value;
+  try {
+    const monitorTab = ruleElement.querySelector('input[name=monitorTab]').value;
+    const monitorWord = ruleElement.querySelector('input[name=monitorWord]').value;
+    const shouldHaveComment = ruleElement.querySelector('input[name=shouldHaveComment]').checked;
+    const monitorStatus = ruleElement.querySelector('input[name=monitorStatus]:checked').value;
 
-  const blockUntil = ruleElement.querySelector('input[name=blockUntil]').value;
-  const recover = ruleElement.querySelector('input[name=recover]').checked;
-  const remove = ruleElement.querySelector('input[name=remove]').checked;
+    const blockUntil = ruleElement.querySelector('input[name=blockUntil]').value;
+    const recover = ruleElement.querySelector('input[name=recover]').checked;
+    const remove = ruleElement.querySelector('input[name=remove]').checked;
 
-  return {
+    return {
       'monitorTab': monitorTab,
       'monitorWord': monitorWord,
       'shouldHaveComment': shouldHaveComment,
@@ -35,7 +36,11 @@ function parseRule(ruleElement) {
       'blockUntil': blockUntil,
       'recover': recover,
       'remove': remove
-  };
+    };
+  } catch(err) {
+    alert('설정 값에 이상이 있습니다. 확인하고 다시 시도해주세요.');
+    throw err;
+  }
 }
 
 function applyRule(ruleElement, rule) {

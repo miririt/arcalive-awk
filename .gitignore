@@ -1,6 +1,6 @@
 #Backups
-article_backup/
-board_backup/
+article-backup/
+board-backup/
 
 # Logs
 logs
