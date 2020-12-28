@@ -96,6 +96,7 @@ app.post('/subscribe', async function(req, res) {
   backup.saveBoardBackup(req.body.channel, JSON.parse(req.body.rules));
   backup.loadBoardBackup();
 
+  arcaRequest.checkAllBoards();
   res.send("ok");
 });
 app.post('/revoke', async function(req, res) {
@@ -121,6 +122,6 @@ app.post('/revoke', async function(req, res) {
 });
 
 app.listen(port, () => {
-  setInterval(arcaRequest.checkAllBoards, config.checkInterval);
+  arcaRequest.checkAllBoards();
   console.log(`ArcaAWK listening at http://localhost:${port}`);
 });

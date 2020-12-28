@@ -257,7 +257,6 @@ class ArcaRequest {
         }
       } catch(err) {
         // 404 Not Found => article is deleted
-        console.log(`Article Deleted : ${boardUrl}/${lastArticleList[i].articleId}`);
 
         // Ignore bot's own article
         if(backupAuthor == config.usernick) continue;
@@ -269,6 +268,7 @@ class ArcaRequest {
             ArcaRequest.block(`${boardUrl}/${lastArticleList[i].articleId}`, csrfToken, violatedRule.blockUntil);
           }
           if(violatedRule.recover) {
+            console.log(`Article Deleted : ${boardUrl}/${lastArticleList[i].articleId}`);
             console.log(`Auto recover article`);
             const comments = (backupCommentList ? backupCommentList.querySelectorAll('.comment-wrapper') : [])
               .map(comment => { return {
@@ -340,11 +340,20 @@ class ArcaRequest {
     }
 
     await backup.saveArticleBackup(boardName, articles);
+    ArcaRequest.checkQueue[boardUrl] = setTimeout(function() {
+      ArcaRequest.check(boardUrl);
+    }, config.checkInterval);
   }
 
   static async checkAllBoards() {
+    ArcaRequest.checkQueue = ArcaRequest.checkQueue || {};
+    
     for(const board in backup.boardSettings) {
-      ArcaRequest.check(backup.boardSettings[board].boardUrl);
+      if(!ArcaRequest.checkQueue[backup.boardSettings[board].boardUrl]) {
+        ArcaRequest.checkQueue[backup.boardSettings[board].boardUrl] = setTimeout(function() {
+          ArcaRequest.check(backup.boardSettings[board].boardUrl)
+        }, config.checkInterval);
+      }
     }
   }
 
