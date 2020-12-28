@@ -12,6 +12,7 @@ const port = config.port;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/', static(path.join(__dirname, 'www')));
 app.get('/heartbeat', async function(req, res) {
+  res.set('Cache-control', 'no-cache');
   res.send("true");
 });
 app.get('/session', async function(req, res) {
@@ -83,6 +84,11 @@ app.post('/subscribe', async function(req, res) {
   }
 
   if(!(await arcaRequest.checkPermission(req.body.channel))) {
+    res.send("fail");
+    return;
+  }
+
+  if(backup.boardSettings[boardName]) {
     res.send("fail");
     return;
   }
