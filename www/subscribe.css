@@ -1,0 +1,55 @@
+
+.hidden {
+    display: none;
+}
+
+.rule {
+    border-bottom: 2px dotted black;
+    margin-bottom: 1em;
+    display: flex;
+    flex: 1 0 auto;
+}
+
+.headline {
+    font-size: large;
+    font-weight: bold;
+}
+
+.labeled-input {
+    border: 2px solid black;
+    border-radius: 8px;
+    padding: 1em;
+    margin: 1em;
+}
+
+.label {
+    font-weight: bold;
+}
+
+.explain {
+    vertical-align: bottom;
+    font-size: small;
+}
+
+input[type=text] {
+    border: none;
+    border-radius: 8px;
+    padding: 1em;
+    background: lightgrey;
+    font-weight: bold;
+    width: 24em;
+}
+
+input[type=button] {
+    border: 2px solid black;
+    border-radius: 8px;
+    padding: calc(1em - 4px);
+    color: black;
+    background: white;
+    font-weight: bold;
+}
+input[type=button]:hover {
+    color: white;
+    background: black;
+    transition: 500ms;
+}

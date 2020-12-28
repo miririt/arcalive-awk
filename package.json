@@ -1,0 +1,25 @@
+{
+  "name": "arcalive-awk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/miririt/arcalive-awk.git"
+  },
+  "author": "miririt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/miririt/arcalive-awk/issues"
+  },
+  "homepage": "https://github.com/miririt/arcalive-awk#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.1",
+    "node-html-parser": "^2.0.0"
+  }
+}
