@@ -18,6 +18,10 @@ app.get('/session', async function(req, res) {
   arcaRequest.checkSession();
   res.send("Checked");
 });
+app.get('/backup', async function(req, res) {
+  backup.loadBoardBackup();
+  res.send(JSON.stringify(backup.boardSettings));
+});
 app.post('/check', async function(req, res) {
   if(req.body.channel.indexOf('arca.live') == -1) {
     res.send("fail");
