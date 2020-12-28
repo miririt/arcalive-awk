@@ -226,7 +226,7 @@ class ArcaRequest {
         if(violatedRule && violatedRule.monitorStatus == 'on') {
           if(violatedRule.blockUntil) {
             console.log(`Auto block user`);
-            const csrfToken = backupPage.querySelectorAll('form input').attributes.value;
+            const csrfToken = backupPage.querySelector('form input').attributes.value;
             ArcaRequest.block(`${boardUrl}/${lastArticleList[i].articleId}`, csrfToken, 3600);
           }
           if(violatedRule.remove) {
@@ -241,7 +241,7 @@ class ArcaRequest {
         if(violatedRule && violatedRule.monitorStatus == 'removed') {
           if(violatedRule.blockUntil) {
             console.log(`Auto block user`);
-            const csrfToken = backupPage.querySelectorAll('form input').attributes.value;
+            const csrfToken = backupPage.querySelector('form input').attributes.value;
             ArcaRequest.block(`${boardUrl}/${lastArticleList[i].articleId}`, csrfToken, 3600);
           }
           if(violatedRule.recover) {
