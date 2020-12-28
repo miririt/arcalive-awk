@@ -88,7 +88,7 @@ app.post('/subscribe', async function(req, res) {
     return;
   }
 
-  if(backup.boardSettings[boardName]) {
+  if(backup.boardSettings[req.body.channel.match(/b\/(.+)/)[1]]) {
     res.send("fail");
     return;
   }
