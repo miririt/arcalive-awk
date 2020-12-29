@@ -20,6 +20,7 @@ async function write(path, data) {
       if (err) {
         console.error(err, err.stack);
         reject(err);
+        return;
       } else {
         resolve();
       }
@@ -36,9 +37,10 @@ async function read(path) {
       if (err) {
         console.error(err, err.stack);
         reject(err);
+        return;
       }
 
-      resolve(data.Body.toString());
+      resolve(data.Body);
     });
   });
 }
@@ -54,10 +56,15 @@ class Backup {
   }
 
   static async loadBoardBackup() {
-    const deflatedData = await read('board-backup');
-    const boardData = zlib.inflateSync(deflatedData).toString();
+    try {
+      const deflatedData = await read('board-backup');
+      const boardData = zlib.inflateSync(deflatedData).toString();
 
-    Backup.boardSettings = JSON.parse(boardData);
+      Backup.boardSettings = JSON.parse(boardData);
+    } catch(err) {
+      console.error('Failed to load board backup');
+      return;
+    }
   }
 
   static async saveBoardBackup(boardUrl, rules) {
@@ -76,10 +83,15 @@ class Backup {
   }
 
   static async loadArticleBackup(boardName) {
-    const deflatedData = await read(path.join('article-backup', boardName));
-    const articleData = zlib.inflateSync(deflatedData).toString();
+    try {
+      const deflatedData = await read(path.join('article-backup', boardName));
+      const articleData = zlib.inflateSync(deflatedData).toString();
 
-    return JSON.parse(articleData);
+      return JSON.parse(articleData);
+    } catch(err) {
+      console.error('Failed to load article backup');
+      return [];
+    }
   }
 
   static async saveArticleBackup(boardName, articles) {
