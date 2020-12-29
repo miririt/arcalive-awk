@@ -55,6 +55,9 @@ class ArcaAwk {
 
         // check which rule violation
         const backupPage = htmlParser.parse(lastArticleList[i].content);
+        const backupTitleElement = backupPage.querySelector('.article-head .title');
+        const categoryHTML = backupTitleElement.querySelector('span') ? backupTitleElement.querySelector('span').outerHTML : '';
+        const backupTitle = backupTitleElement.innerHTML.replace(categoryHTML, '');
         const backupAuthor = backupPage.querySelector('.article-head .user-info').innerText.replace(/\s+/, '');
         const backupBodyElement = backupPage.querySelector('.article-body');
         const backupCommentList = backupPage.querySelector('.article-comment .list-area');
@@ -146,7 +149,7 @@ class ArcaAwk {
       await backup.saveArticleBackup(boardName, articles);
     } finally {
       ArcaAwk.checkQueue[boardUrl] = setTimeout(function() {
-        ArcaAwk.check(boardUrl);
+        if(backup.boardSettings[boardUrl.match(/b\/(.+)/)[1]]) ArcaAwk.check(boardUrl);
       }, config.checkInterval);
     }
   }
