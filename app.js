@@ -95,7 +95,7 @@ app.post('/subscribe', async function(req, res) {
   
   backup.saveBoardBackup(req.body.channel, JSON.parse(req.body.rules));
 
-  ArcaAWK.checkAllBoards();
+  ArcaAwk.checkAllBoards();
   res.send("ok");
 });
 app.post('/revoke', async function(req, res) {
