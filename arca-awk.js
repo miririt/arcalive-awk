@@ -138,7 +138,7 @@ class ArcaAwk {
           const articlePage = htmlParser.parse(articleContent);
           // check if this article is on monitoring
           if(!backup.boardSettings[boardName]) {
-            console.log(boardUrl, boardName);
+            break;
           }
           if(checkViolation(articlePage, backup.boardSettings[boardName].rules)) {
             articles.push({
