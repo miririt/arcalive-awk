@@ -1,6 +1,6 @@
 
 .hidden {
-    display: none;
+    /*display: none;*/
 }
 
 .rule {
@@ -31,7 +31,7 @@
     font-size: small;
 }
 
-input[type=text] {
+input[type=text], input[type=number] {
     border: none;
     border-radius: 8px;
     padding: 1em;

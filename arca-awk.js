@@ -11,6 +11,8 @@ class ArcaAwk {
       const backupBodyElement = backupPage.querySelector('.article-body');
       const backupCommentList = backupPage.querySelector('.article-comment .list-area');
 
+      const backupRating = backupBodyElement.querySelector('#ratingUp').innerText - backupBodyElement.querySelector('#ratingDown').innerText;
+
       return rules.find(rule => {
         // tab rule check
         if(rule.monitorTab && (
@@ -22,6 +24,11 @@ class ArcaAwk {
         if(rule.monitorWord && (
           backupTitle.indexOf(rule.monitorWord) == -1
           && backupBodyElement.innerText.indexOf(rule.monitorWord) == -1
+        ))
+          return false;
+        // word rule check
+        if(rule.useVote && (
+          backupRating > rule.monitorDownvote
         ))
           return false;
         // comment rule check

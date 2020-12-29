@@ -21,6 +21,8 @@ function parseRule(ruleElement) {
   try {
     const monitorTab = ruleElement.querySelector('input[name=monitorTab]').value;
     const monitorWord = ruleElement.querySelector('input[name=monitorWord]').value;
+    const useVote = ruleElement.querySelector('input[name=useVote]').checked;
+    const monitorDownvote = ruleElement.querySelector('input[name=monitorDownvote]').value;
     const shouldHaveComment = ruleElement.querySelector('input[name=shouldHaveComment]').checked;
     const monitorStatus = ruleElement.querySelector('input[name=monitorStatus]:checked').value;
 
@@ -31,6 +33,8 @@ function parseRule(ruleElement) {
     return {
       'monitorTab': monitorTab,
       'monitorWord': monitorWord,
+      'useVote': useVote,
+      'monitorDownvote': monitorDownvote,
       'shouldHaveComment': shouldHaveComment,
       'monitorStatus': monitorStatus,
       'blockUntil': blockUntil,
@@ -46,6 +50,8 @@ function parseRule(ruleElement) {
 function applyRule(ruleElement, rule) {
   const monitorTab = ruleElement.querySelector('input[name=monitorTab]');
   const monitorWord = ruleElement.querySelector('input[name=monitorWord]');
+  const useVote = ruleElement.querySelector('input[name=useVote]');
+  const monitorDownvote = ruleElement.querySelector('input[name=monitorDownvote]');
   const shouldHaveComment = ruleElement.querySelector('input[name=shouldHaveComment]');
   const monitorStatusOn = ruleElement.querySelectorAll('input[name=monitorStatus]')[0];
   const monitorStatusRemoved = ruleElement.querySelectorAll('input[name=monitorStatus]')[1];
@@ -56,6 +62,8 @@ function applyRule(ruleElement, rule) {
 
   monitorTab.value = rule.monitorTab;
   monitorWord.value = rule.monitorWord;
+  useVote.checked = rule.useVote;
+  monitorDownvote.value = rule.monitorDownvote;
   shouldHaveComment.checked = rule.shouldHaveComment;
   if(rule.monitorStatus == 'on') {
     monitorStatusOn.checked = true;

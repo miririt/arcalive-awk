@@ -41,27 +41,35 @@
             <input type="checkbox" name="shouldHaveComment">댓글이 있는 게시물만 감시
         </div>
         <div class="labeled-input">
+          <span class="label">투표 조건</span><br>
+          <span class="explain">게시글에 투표된 비추천 수가 추천 개수보다 많을 경우 감시 대상을 지정합니다.</span><br>
+          <input type="checkbox" name="useVote">투표 조건 사용
+          <input type="number" name="monitorDownvote" placeholder="추천 - 비추천 개수(ex. -5)">
+        </div>
+        <div class="labeled-input">
           <span class="label">감시 유형</span><br>
           <span class="explain">대상 게시물의 감시 유형를 지정합니다.</span><br>
           <input type="radio" name="monitorStatus" value="on">작성 즉시 처벌
           <input type="radio" name="monitorStatus" value="removed">삭제시 처벌
-      </div>
+        </div>
       </div>
       <div class="punishment">
         <span class="headline">처벌 조건</span><br>
         <div class="labeled-input">
           <span class="label">차단 기간</span><br>
           <span class="explain">조건을 만족하는 게시글이 삭제되면 해당 게시글의 작성자를 차단합니다.</span><br>
-          <input type="text" name="blockUntil" placeholder="차단 기간(단위 : 초)">
+          <input type="number" name="blockUntil" placeholder="차단 기간(단위 : 초)">
         </div>
         <div class="labeled-input">
           <span class="label">게시글 복구</span><br>
-          <span class="explain">조건을 만족하는 게시글이 삭제되면 해당 게시글 내용과 댓글을 복구합니다. 감시 조건이 삭제가 아닐 경우 무시됩니다.</span><br>
+          <span class="explain">조건을 만족하는 게시글이 삭제되면 해당 게시글 내용과 댓글을 복구합니다.</span><br>
+          <span class="explain">감시 유형이 삭제가 아닐 경우 무시됩니다.</span><br>
           <input type="checkbox" name="recover">삭제된 게시글 복구
         </div>
         <div class="labeled-input">
           <span class="label">게시글 삭제</span><br>
-          <span class="explain">조건을 만족하는 게시글이 작성되면 해당 게시글을 삭제합니다. 감시 조건이 작성이 아닐 경우 무시됩니다.</span><br>
+          <span class="explain">조건을 만족하는 게시글이 작성되면 해당 게시글을 삭제합니다.</span><br>
+          <span class="explain">감시 유형이 작성이 아닐 경우 무시됩니다.</span><br>
           <input type="checkbox" name="remove">작성된 게시글 삭제
         </div>
       </div>
