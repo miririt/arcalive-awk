@@ -137,6 +137,9 @@ class ArcaAwk {
           const articleContent = await ArcaRequest.loadArticle(boardUrl, articleIdList[i]);
           const articlePage = htmlParser.parse(articleContent);
           // check if this article is on monitoring
+          if(!backup.boardSettings[boardName]) {
+            console.log(boardUrl, boardName);
+          }
           if(checkViolation(articlePage, backup.boardSettings[boardName].rules)) {
             articles.push({
               articleId: articleIdList[i],
