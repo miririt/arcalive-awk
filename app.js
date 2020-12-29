@@ -72,16 +72,6 @@ app.post('/rules', async function(req, res) {
   }
 });
 app.post('/subscribe', async function(req, res) {
-  if(req.body.channel.indexOf('arca.live') == -1) {
-    res.send("fail");
-    return;
-  }
-
-  if(!req.body.channel.match(/b\/(.+)/) || backup.boardSettings[req.body.channel.match(/b\/(.+)/)[1]] ) {
-    res.send("fail");
-    return;
-  }
-
   // force subscribe
   if(req.body.adminToken === config.adminToken) {
     backup.saveBoardBackup(req.body.channel, JSON.parse(req.body.rules));
@@ -89,12 +79,12 @@ app.post('/subscribe', async function(req, res) {
     return;
   }
 
-  if(!(await ArcaRequest.checkPermission(req.body.channel))) {
+  if(req.body.channel.indexOf('arca.live') == -1) {
     res.send("fail");
     return;
   }
 
-  if(backup.boardSettings[req.body.channel.match(/b\/(.+)/)[1]]) {
+  if(!req.body.channel.match(/b\/(.+)/) || backup.boardSettings[req.body.channel.match(/b\/(.+)/)[1]] ) {
     res.send("fail");
     return;
   }
@@ -106,6 +96,13 @@ app.post('/subscribe', async function(req, res) {
 });
 app.post('/revoke', async function(req, res) {
 
+  // force revoke
+  if(req.body.adminToken === config.adminToken) {
+    backup.saveBoardBackup(req.body.channel, null);
+    res.send("ok");
+    return;
+  }
+
   if(req.body.channel.indexOf('arca.live') == -1) {
     res.send("fail");
     return;
@@ -113,13 +110,6 @@ app.post('/revoke', async function(req, res) {
 
   if(!req.body.channel.match(/b\/(.+)/) || !backup.boardSettings[req.body.channel.match(/b\/(.+)/)[1]] ) {
     res.send("fail");
-    return;
-  }
-
-  // force revoke
-  if(req.body.adminToken === config.adminToken) {
-    backup.saveBoardBackup(req.body.channel, null);
-    res.send("ok");
     return;
   }
   
