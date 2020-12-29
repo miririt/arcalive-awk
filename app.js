@@ -20,7 +20,6 @@ app.get('/session', async function(req, res) {
   res.send("Checked");
 });
 app.get('/backup', async function(req, res) {
-  backup.loadBoardBackup();
   res.send(JSON.stringify(backup.boardSettings));
 });
 app.post('/check', async function(req, res) {
@@ -94,7 +93,6 @@ app.post('/subscribe', async function(req, res) {
   }
   
   backup.saveBoardBackup(req.body.channel, JSON.parse(req.body.rules));
-  backup.loadBoardBackup();
 
   arcaRequest.checkAllBoards();
   res.send("ok");
@@ -116,7 +114,6 @@ app.post('/revoke', async function(req, res) {
   }
 
   backup.saveBoardBackup(req.body.channel, null);
-  backup.loadBoardBackup();
 
   res.send("ok");
 });

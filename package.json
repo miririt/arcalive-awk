@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/miririt/arcalive-awk#readme",
   "dependencies": {
+    "aws-sdk": "^2.818.0",
     "express": "^4.17.1",
     "node-fetch": "^2.6.1",
     "node-html-parser": "^2.0.0"

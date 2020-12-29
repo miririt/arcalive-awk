@@ -8,4 +8,9 @@ config.usernick = process.env.AWK_USERNICK;
 config.password = process.env.AWK_PASSWORD;
 config.checkInterval = process.env.CHECK_INETRVAL || 10000;
 
+config.awsAccessKey = process.env.AWS_ACCESS_KEY_ID;
+config.awsSecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+config.awsRegion = process.env.AWS_REGION;
+config.bucketName = process.env.BUCKET_NAME;
+
 module.exports = config;

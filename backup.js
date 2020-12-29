@@ -1,99 +1,91 @@
-const fs = require('fs');
 const path = require('path');
+const zlib = require('zlib');
+const AWS = require('aws-sdk');
+
+const config = require('./config');
+
+const s3  = new AWS.S3({
+  accessKeyId: config.awsAccessKey,
+  secretAccessKey: config.awsSecretAccessKey,
+  region: config.awsRegion,
+});
+
+async function write(path, data) {
+  return new Promise(function(resolve, reject) {
+    s3.putObject({
+      Key:    path,
+      Bucket: config.bucketName,
+      Body:   data,
+    }, function(err, data) {
+      if (err) {
+        console.error(err, err.stack);
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+async function read(path) {
+  return new Promise(function(resolve, reject) {
+    s3.getObject({
+      Key: path,
+      Bucket: config.bucketName
+    }, function(err, data) {
+      if (err) {
+        console.error(err, err.stack);
+        reject(err);
+      }
+
+      resolve(data.Body.toString());
+    });
+  });
+}
 
 class Backup {
-  static init() {
-    if(!fs.existsSync('board-backup')) {
-      fs.mkdirSync('board-backup');
-    }
-    if(!fs.existsSync('article-backup')) {
-      fs.mkdirSync('article-backup');
-    }
 
+  static init() {
+    Backup.cachedArticle = {};
     Backup.boardSettings = {};
     Backup.loadBoardBackup();
     
     return Backup;
   }
 
-  static loadBoardBackup() {
-    const boardList = fs.readdirSync('board-backup');
+  static async loadBoardBackup() {
+    const deflatedData = await read('board-backup');
+    const boardData = zlib.inflateSync(deflatedData).toString();
 
-    boardList.forEach(board => {
-      const boardInfo = fs.readFileSync(path.resolve('board-backup', board), { encoding: 'utf8' });
-      Backup.boardSettings[board] = JSON.parse(boardInfo);
-    });
+    Backup.boardSettings = JSON.parse(boardData);
   }
 
-  static saveBoardBackup(boardUrl, rules) {
+  static async saveBoardBackup(boardUrl, rules) {
     const boardName = boardUrl.match(/b\/(.+)/)[1];
-    const boardInfo = { rules: rules };
-    boardInfo.boardUrl = boardUrl
+
     if(rules == null) {
-      const isExist = fs.existsSync(path.resolve('board-backup', boardName));
-      if(isExist) fs.unlinkSync(path.resolve('board-backup', boardName))
       delete Backup.boardSettings[boardName];
       return;
     }
-    fs.writeFileSync(path.resolve('board-backup', boardName), JSON.stringify(boardInfo), function(err) {
-      console.error(err);
-    });
+    Backup.boardSettings[boardName] = { rules: rules, boardUrl: boardUrl };
+
+    const boardData = JSON.stringify(Backup.boardSettings);
+    const deflatedData = zlib.deflateSync(boardData);
+
+    return write(path.join('board-backup', boardName), deflatedData);
   }
 
   static async loadArticleBackup(boardName) {
-    if(!fs.existsSync(path.resolve('article-backup', boardName))) {
-      fs.mkdirSync(path.resolve('article-backup', boardName));
-    }
+    const deflatedData = await read(path.join('article-backup', boardName));
+    const articleData = zlib.inflateSync(deflatedData).toString();
 
-    return new Promise(function(resolve, reject){
-      fs.readdir(path.resolve('article-backup', boardName), async function(err, files) {
-        if(err) reject(err);
-        else {
-          const articleBackup = [];
-          
-          await Promise.all(files.map(article => new Promise(function(resolve, reject) {
-            fs.readFile(
-              path.resolve('article-backup', boardName, article),
-              { encoding: 'utf8' },
-              function(err, data) {
-                if(err) reject(err);
-                else {
-                  articleBackup.push({
-                    articleId: article,
-                    content: data
-                  });
-                  resolve();
-                }
-              });
-          }))).catch(err => reject(err));
-
-          resolve(articleBackup);
-        }
-      });
-    });
+    return JSON.parse(articleData);
   }
 
   static async saveArticleBackup(boardName, articles) {
-    // empty board backup contents dir
-    return new Promise(function(resolve, reject) {
-      fs.readdir(path.resolve('article-backup', boardName), async function(err, files) {
-        if (err) reject(err);
-      
-        for (const file of files) {
-          fs.unlink(path.resolve('article-backup', boardName, file), err => {
-            if (err) reject(err);
-          });
-        }
-
-        await Promise.all(articles.map(article => new Promise(function(resolve, reject) {
-          try {
-            fs.writeFileSync(path.resolve('article-backup', boardName, article.articleId), article.content);
-            resolve();
-          } catch(err) { reject(err); }
-        }))).catch(err => reject(err));
-        resolve();
-      });
-    });
+    const articleData = JSON.stringify(articles);
+    const deflatedData = zlib.deflateSync(articleData);
+    return write(path.join('article-backup', boardName), deflatedData);
   }
 };
 

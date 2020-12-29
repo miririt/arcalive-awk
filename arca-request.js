@@ -81,7 +81,7 @@ class ArcaRequest {
       return true;
       
     } catch(err) {
-      console.error(err);
+      console.error(err, err.stack);
       return false;
     }
   }
@@ -158,7 +158,7 @@ class ArcaRequest {
         body: articleInfo
       });
     } catch(err) {
-      console.error(err);
+      console.error(err, err.stack);
     }
   }
 
@@ -176,7 +176,7 @@ class ArcaRequest {
         body: articleInfo
       });
     } catch(err) {
-      console.error(err);
+      console.error(err, err.stack);
     }
   }
 
