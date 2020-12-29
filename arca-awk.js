@@ -44,7 +44,6 @@ class ArcaAwk {
       });
     }
     try {
-      console.log(`Check board: ${boardUrl}`);
       await ArcaRequest.checkSession();
 
       const boardName = boardUrl.match(/b\/(.+)/)[1];

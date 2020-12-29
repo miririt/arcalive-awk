@@ -120,6 +120,10 @@ app.post('/revoke', async function(req, res) {
 });
 
 app.listen(port, () => {
-  ArcaAwk.checkAllBoards();
   console.log(`ArcaAWK listening at http://localhost:${port}`);
 });
+
+(async function() {
+  await ArcaRequest.checkSession();
+  await ArcaAwk.checkAllBoards();
+})();
