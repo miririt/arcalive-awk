@@ -43,109 +43,112 @@ class ArcaAwk {
         return true;
       });
     }
-    await ArcaRequest.checkSession();
+    try {
+      await ArcaRequest.checkSession();
 
-    const boardName = boardUrl.match(/b\/(.+)/)[1];
-    const lastArticleList = await backup.loadArticleBackup(boardName);
+      const boardName = boardUrl.match(/b\/(.+)/)[1];
+      const lastArticleList = await backup.loadArticleBackup(boardName);
 
-    // load article backups and check it exists
-    for(let i = 0; i < lastArticleList.length; i++) {
+      // load article backups and check it exists
+      for(let i = 0; i < lastArticleList.length; i++) {
 
-      // check which rule violation
-      const backupPage = htmlParser.parse(lastArticleList[i].content);
-      const backupAuthor = backupPage.querySelector('.article-head .user-info').innerText.replace(/\s+/, '');
-      const backupBodyElement = backupPage.querySelector('.article-body');
-      const backupCommentList = backupPage.querySelector('.article-comment .list-area');
+        // check which rule violation
+        const backupPage = htmlParser.parse(lastArticleList[i].content);
+        const backupAuthor = backupPage.querySelector('.article-head .user-info').innerText.replace(/\s+/, '');
+        const backupBodyElement = backupPage.querySelector('.article-body');
+        const backupCommentList = backupPage.querySelector('.article-comment .list-area');
 
-      const violatedRule = checkViolation(backupPage, backup.boardSettings[boardName].rules);
+        const violatedRule = checkViolation(backupPage, backup.boardSettings[boardName].rules);
 
-      try {
-        const loadResult = await ArcaRequest.loadArticle(boardUrl, lastArticleList[i].articleId)
-        .catch(err => { throw err; });
-        if(loadResult == null) {
-          throw 'Error';
-        }
-
-        if(violatedRule && violatedRule.monitorStatus == 'on') {
-          if(violatedRule.blockUntil) {
-            console.log(`Auto block user`);
-            const csrfToken = backupPage.querySelector('.user-block form input').attributes.value;
-            ArcaRequest.block(`${boardUrl}/${lastArticleList[i].articleId}`, csrfToken, violatedRule.blockUntil);
+        try {
+          const loadResult = await ArcaRequest.loadArticle(boardUrl, lastArticleList[i].articleId)
+          .catch(err => { throw err; });
+          if(loadResult == null) {
+            throw 'Error';
           }
-          if(violatedRule.remove) {
-            console.log(`Auto delete article`);
-            ArcaRequest.deleteArticle(`${boardUrl}/${lastArticleList[i].articleId}`);;
+
+          if(violatedRule && violatedRule.monitorStatus == 'on') {
+            if(violatedRule.blockUntil) {
+              console.log(`Auto block user`);
+              const csrfToken = backupPage.querySelector('.user-block form input').attributes.value;
+              ArcaRequest.block(`${boardUrl}/${lastArticleList[i].articleId}`, csrfToken, violatedRule.blockUntil);
+            }
+            if(violatedRule.remove) {
+              console.log(`Auto delete article`);
+              ArcaRequest.deleteArticle(`${boardUrl}/${lastArticleList[i].articleId}`);;
+            }
           }
-        }
-      } catch(err) {
-        // 404 Not Found => article is deleted
+        } catch(err) {
+          // 404 Not Found => article is deleted
 
-        // Ignore bot's own article
-        if(backupAuthor == config.usernick) continue;
+          // Ignore bot's own article
+          if(backupAuthor == config.usernick) continue;
 
-        if(violatedRule && violatedRule.monitorStatus == 'removed') {
-          if(violatedRule.blockUntil) {
-            console.log(`Auto block user`);
-            const csrfToken = backupPage.querySelector('.user-block form input').attributes.value;
-            ArcaRequest.block(`${boardUrl}/${lastArticleList[i].articleId}`, csrfToken, violatedRule.blockUntil);
-          }
-          if(violatedRule.recover) {
-            console.log(`Article Deleted : ${boardUrl}/${lastArticleList[i].articleId}`);
-            console.log(`Auto recover article`);
-            const comments = (backupCommentList ? backupCommentList.querySelectorAll('.comment-wrapper') : [])
-              .map(comment => { return {
-                'author': comment.querySelector('.user-info').innerText,
-                'content': comment.querySelector('.message').innerHTML.replace('<div class="btn btn-sm btn-more">펼쳐보기▼</div>', '')
-              }; })
-              .map(commentInfo => `[${commentInfo.author}]${commentInfo.content}`)
-              .join('');
+          if(violatedRule && violatedRule.monitorStatus == 'removed') {
+            if(violatedRule.blockUntil) {
+              console.log(`Auto block user`);
+              const csrfToken = backupPage.querySelector('.user-block form input').attributes.value;
+              ArcaRequest.block(`${boardUrl}/${lastArticleList[i].articleId}`, csrfToken, violatedRule.blockUntil);
+            }
+            if(violatedRule.recover) {
+              console.log(`Article Deleted : ${boardUrl}/${lastArticleList[i].articleId}`);
+              console.log(`Auto recover article`);
+              const comments = (backupCommentList ? backupCommentList.querySelectorAll('.comment-wrapper') : [])
+                .map(comment => { return {
+                  'author': comment.querySelector('.user-info').innerText,
+                  'content': comment.querySelector('.message').innerHTML.replace('<div class="btn btn-sm btn-more">펼쳐보기▼</div>', '')
+                }; })
+                .map(commentInfo => `[${commentInfo.author}]${commentInfo.content}`)
+                .join('');
 
-            const commentCount = (backupCommentList ? backupCommentList.querySelectorAll('.comment-wrapper') : []).length;
+              const commentCount = (backupCommentList ? backupCommentList.querySelectorAll('.comment-wrapper') : []).length;
 
-            const articleContent = backupBodyElement.querySelector('.fr-view.article-content');
-            const articleRating = [
-              backupBodyElement.querySelector('#ratingUp').innerText,
-              backupBodyElement.querySelector('#ratingDown').innerText
-            ];
-            ArcaRequest.writeArticle(boardUrl,
-              '',
-              `[복구(작성자 ${backupAuthor})] ` + backupTitle,
-              `<span style="font-size: 24px;">원본글 내용(추천 ${articleRating[0]}개 / 비추 ${articleRating[1]}개)</span><hr>${articleContent.innerHTML}<hr><span style="font-size: 24px;">댓글 목록(${commentCount}개)</span><hr>${comments}`
-            );
+              const articleContent = backupBodyElement.querySelector('.fr-view.article-content');
+              const articleRating = [
+                backupBodyElement.querySelector('#ratingUp').innerText,
+                backupBodyElement.querySelector('#ratingDown').innerText
+              ];
+              ArcaRequest.writeArticle(boardUrl,
+                '',
+                `[복구(작성자 ${backupAuthor})] ` + backupTitle,
+                `<span style="font-size: 24px;">원본글 내용(추천 ${articleRating[0]}개 / 비추 ${articleRating[1]}개)</span><hr>${articleContent.innerHTML}<hr><span style="font-size: 24px;">댓글 목록(${commentCount}개)</span><hr>${comments}`
+              );
+            }
           }
         }
       }
+
+      const boardPage = await fetch(boardUrl)
+      .then(res => res.text())
+      .then(text => htmlParser.parse(text));
+
+      const articleIdList = boardPage.querySelectorAll('a.vrow')
+      // filter notices and so on.
+      .filter(_ => _.classNames.length == 1)
+      .map(_ => _.attributes.href.match(/(\d+)(\?p=1)?$/)[1]);
+
+      // load articles and backup
+      const articles = [];
+      for(let i = 0; i < articleIdList.length; i++) {
+        try {
+          const articleContent = await ArcaRequest.loadArticle(boardUrl, articleIdList[i]);
+          const articlePage = htmlParser.parse(articleContent);
+          // check if this article is on monitoring
+          if(checkViolation(articlePage, backup.boardSettings[boardName].rules)) {
+            articles.push({
+              articleId: articleIdList[i],
+              content: articleContent
+            });
+          }
+        } catch(e) { console.error(e); }
+      }
+
+      await backup.saveArticleBackup(boardName, articles);
+    } finally {
+      ArcaAwk.checkQueue[boardUrl] = setTimeout(function() {
+        ArcaAwk.check(boardUrl);
+      }, config.checkInterval);
     }
-
-    const boardPage = await fetch(boardUrl)
-    .then(res => res.text())
-    .then(text => htmlParser.parse(text));
-
-    const articleIdList = boardPage.querySelectorAll('a.vrow')
-    // filter notices and so on.
-    .filter(_ => _.classNames.length == 1)
-    .map(_ => _.attributes.href.match(/(\d+)(\?p=1)?$/)[1]);
-
-    // load articles and backup
-    const articles = [];
-    for(let i = 0; i < articleIdList.length; i++) {
-      try {
-        const articleContent = await ArcaRequest.loadArticle(boardUrl, articleIdList[i]);
-        const articlePage = htmlParser.parse(articleContent);
-        // check if this article is on monitoring
-        if(checkViolation(articlePage, backup.boardSettings[boardName].rules)) {
-          articles.push({
-            articleId: articleIdList[i],
-            content: articleContent
-          });
-        }
-      } catch(e) { console.error(e); }
-    }
-
-    await backup.saveArticleBackup(boardName, articles);
-    ArcaAwk.checkQueue[boardUrl] = setTimeout(function() {
-      ArcaAwk.check(boardUrl);
-    }, config.checkInterval);
   }
 
   static async checkAllBoards() {
