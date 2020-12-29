@@ -99,6 +99,12 @@ app.post('/subscribe', async function(req, res) {
   res.send("ok");
 });
 app.post('/revoke', async function(req, res) {
+  if(req.body.adminToken === config.adminToken) {
+    backup.saveBoardBackup(req.body.channel, null);
+    res.send("ok");
+    return;
+  }
+
   if(req.body.channel.indexOf('arca.live') == -1) {
     res.send("fail");
     return;
