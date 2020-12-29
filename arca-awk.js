@@ -1,5 +1,8 @@
-
+const fetch = require('node-fetch');
+const htmlParser = require('node-html-parser');
 const ArcaRequest = require('./arca-request');
+const backup = require('./backup');
+const config = require('./config');
 
 class ArcaAwk {
 
