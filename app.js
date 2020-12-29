@@ -2,7 +2,8 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const static = require('serve-static');
-const arcaRequest = require('./arca-request');
+const ArcaRequest = require('./arca-request');
+const ArcaAwk = require('./arca-awk');
 const backup = require('./backup');
 const config = require('./config');
 
@@ -16,7 +17,7 @@ app.get('/heartbeat', async function(req, res) {
   res.send("true");
 });
 app.get('/session', async function(req, res) {
-  arcaRequest.checkSession();
+  ArcaRequest.checkSession();
   res.send("Checked");
 });
 app.get('/backup', async function(req, res) {
@@ -35,7 +36,7 @@ app.post('/check', async function(req, res) {
 
   const boardName = req.body.channel.match(/b\/(.+)/)[1];
 
-  if((await arcaRequest.checkPermission(req.body.channel))) {
+  if((await ArcaRequest.checkPermission(req.body.channel))) {
     if(backup.boardSettings[boardName]) {
       res.send("running");
     } else {
@@ -61,7 +62,7 @@ app.post('/rules', async function(req, res) {
     return;
   }
 
-  if(!(await arcaRequest.checkPermission(req.body.channel))) {
+  if(!(await ArcaRequest.checkPermission(req.body.channel))) {
     res.send("fail");
     return;
   }
@@ -82,7 +83,7 @@ app.post('/subscribe', async function(req, res) {
     return;
   }
 
-  if(!(await arcaRequest.checkPermission(req.body.channel))) {
+  if(!(await ArcaRequest.checkPermission(req.body.channel))) {
     res.send("fail");
     return;
   }
@@ -94,7 +95,7 @@ app.post('/subscribe', async function(req, res) {
   
   backup.saveBoardBackup(req.body.channel, JSON.parse(req.body.rules));
 
-  arcaRequest.checkAllBoards();
+  ArcaAWK.checkAllBoards();
   res.send("ok");
 });
 app.post('/revoke', async function(req, res) {
@@ -108,7 +109,7 @@ app.post('/revoke', async function(req, res) {
     return;
   }
   
-  if((await arcaRequest.checkPermission(req.body.channel))) {
+  if((await ArcaAwk.checkPermission(req.body.channel))) {
     res.send("fail");
     return;
   }
@@ -119,6 +120,6 @@ app.post('/revoke', async function(req, res) {
 });
 
 app.listen(port, () => {
-  arcaRequest.checkAllBoards();
+  ArcaAwk.checkAllBoards();
   console.log(`ArcaAWK listening at http://localhost:${port}`);
 });
