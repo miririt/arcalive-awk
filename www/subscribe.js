@@ -1,16 +1,16 @@
 
 
 function addRule() {
-  const firstDiv = document.querySelector('.rule');
-  const newDiv = document.createElement('div');
+  const firstForm = document.querySelector('.rule');
+  const tempForm = document.createElement('form');
 
-  document.querySelector('#rules').appendChild(newDiv);
-  newDiv.outerHTML = firstDiv.outerHTML;
+  document.querySelector('#rules').appendChild(tempForm);
+  tempForm.outerHTML = firstForm.outerHTML;
 
   const inputs = document.querySelectorAll('input');
   inputs.forEach(inputElem => {
     inputElem.addEventListener('change', function() {
-      document.querySelector('#jsonRule').value = JSON.stringify([...document.querySelectorAll('#rules')].map(parseRule));
+      document.querySelector('#jsonRule').value = JSON.stringify([...document.querySelectorAll('#rules .rule')].map(parseRule));
     });
   });
 
@@ -24,7 +24,7 @@ function parseRule(ruleElement) {
     const useVote = ruleElement.querySelector('input[name=useVote]').checked;
     const monitorDownvote = ruleElement.querySelector('input[name=monitorDownvote]').value;
     const shouldHaveComment = ruleElement.querySelector('input[name=shouldHaveComment]').checked;
-    const monitorStatus = ruleElement.querySelector('input[name=monitorStatus]:checked').value;
+    const monitorStatus = ruleElement.querySelector(`input[name=monitorStatus]:checked`).value;
 
     const blockUntil = ruleElement.querySelector('input[name=blockUntil]').value;
     const recover = ruleElement.querySelector('input[name=recover]').checked;
@@ -53,8 +53,8 @@ function applyRule(ruleElement, rule) {
   const useVote = ruleElement.querySelector('input[name=useVote]');
   const monitorDownvote = ruleElement.querySelector('input[name=monitorDownvote]');
   const shouldHaveComment = ruleElement.querySelector('input[name=shouldHaveComment]');
-  const monitorStatusOn = ruleElement.querySelectorAll('input[name=monitorStatus]')[0];
-  const monitorStatusRemoved = ruleElement.querySelectorAll('input[name=monitorStatus]')[1];
+  const monitorStatusOn = ruleElement.querySelectorAll(`input[name=monitorStatus]`)[0];
+  const monitorStatusRemoved = ruleElement.querySelectorAll(`input[name=monitorStatus]`)[1];
 
   const blockUntil = ruleElement.querySelector('input[name=blockUntil]');
   const recover = ruleElement.querySelector('input[name=recover]');
@@ -82,7 +82,7 @@ function subscribe() {
   const subscrForm = document.querySelector('#subscribe-form');
   subscrForm.method = 'POST';
   subscrForm.action = '/subscribe';
-  subscrForm.rules.value = JSON.stringify([...document.querySelectorAll('#rules')].map(parseRule));
+  subscrForm.rules.value = JSON.stringify([...document.querySelectorAll('#rules .rule')].map(parseRule));
   subscrForm.submit();
 }
 
@@ -91,7 +91,7 @@ function clearRule() {
   
   addRule();
   while(rules.querySelectorAll('.rule').length != 1) {
-    rules.querySelector('.rule').remove();
+    rules.removeChild(rules.querySelector('.rule'));
   }
 }
 
@@ -124,7 +124,7 @@ function loadRule() {
         _.setAttribute('disabled', '');
       }
     });
-    document.querySelector('#jsonRule').value = JSON.stringify([...document.querySelectorAll('#rules')].map(parseRule));
+    document.querySelector('#jsonRule').value = JSON.stringify([...document.querySelectorAll('#rules .rule')].map(parseRule));
     alert('불러오기 성공.');
   })
   .catch(err => {

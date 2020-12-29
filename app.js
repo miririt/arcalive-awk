@@ -113,7 +113,7 @@ app.post('/revoke', async function(req, res) {
     return;
   }
   
-  if((await ArcaAwk.checkPermission(req.body.channel))) {
+  if((await ArcaRequest.checkPermission(req.body.channel))) {
     res.send("fail");
     return;
   }

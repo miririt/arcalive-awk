@@ -23,7 +23,7 @@
   <div id="rules" class="hidden">
     <input type="text" id="jsonRule" placeholder="[{...}] (이 값을 복사하여 설정 백업)">
     <input type="button" value="규칙 로드" onclick="javascript:loadJsonRule();">
-    <div class="rule">
+    <form class="rule">
       <div class="condition">
         <span class="headline">감시 조건</span><br>
         <div class="labeled-input">
@@ -74,7 +74,7 @@
           <input type="checkbox" name="remove">작성된 게시글 삭제
         </div>
       </div>
-    </div>
+    </form>
   </div>
   <div class="hidden">
     <input type="button" value="조건 추가" onclick="javascript:addRule();">
