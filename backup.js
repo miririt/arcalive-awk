@@ -72,6 +72,7 @@ class Backup {
 
     if(rules == null) {
       delete Backup.boardSettings[boardName];
+      ArcaAwk.checkQueue[backup.boardSettings[board].boardUrl] = null;
       return;
     }
     Backup.boardSettings[boardName] = { rules: rules, boardUrl: boardUrl };

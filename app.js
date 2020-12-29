@@ -89,7 +89,7 @@ app.post('/subscribe', async function(req, res) {
     return;
   }
   
-  backup.saveBoardBackup(req.body.channel, JSON.parse(req.body.rules));
+  await backup.saveBoardBackup(req.body.channel, JSON.parse(req.body.rules));
 
   ArcaAwk.checkAllBoards();
   res.send("ok");
