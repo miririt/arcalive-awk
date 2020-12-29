@@ -46,6 +46,7 @@ class ArcaAwk {
     try {
       await ArcaRequest.checkSession();
 
+      console.log(`Checking start ${boardUrl}`);
       const boardName = boardUrl.match(/b\/(.+)/)[1];
       const lastArticleList = await backup.loadArticleBackup(boardName);
 
@@ -69,12 +70,12 @@ class ArcaAwk {
 
           if(violatedRule && violatedRule.monitorStatus == 'on') {
             if(violatedRule.blockUntil) {
-              console.log(`Auto block user`);
+              console.log(`Auto block user ${backupAuthor} : ${boardUrl}/${lastArticleList[i].articleId}`);
               const csrfToken = backupPage.querySelector('.user-block form input').attributes.value;
               ArcaRequest.block(`${boardUrl}/${lastArticleList[i].articleId}`, csrfToken, violatedRule.blockUntil);
             }
             if(violatedRule.remove) {
-              console.log(`Auto delete article`);
+              console.log(`Auto delete article ${boardUrl}/${lastArticleList[i].articleId}`);
               ArcaRequest.deleteArticle(`${boardUrl}/${lastArticleList[i].articleId}`);;
             }
           }
@@ -86,13 +87,12 @@ class ArcaAwk {
 
           if(violatedRule && violatedRule.monitorStatus == 'removed') {
             if(violatedRule.blockUntil) {
-              console.log(`Auto block user`);
+              console.log(`Auto block user ${backupAuthor} : ${boardUrl}/${lastArticleList[i].articleId}`);
               const csrfToken = backupPage.querySelector('.user-block form input').attributes.value;
               ArcaRequest.block(`${boardUrl}/${lastArticleList[i].articleId}`, csrfToken, violatedRule.blockUntil);
             }
             if(violatedRule.recover) {
-              console.log(`Article Deleted : ${boardUrl}/${lastArticleList[i].articleId}`);
-              console.log(`Auto recover article`);
+              console.log(`Auto recover article ${boardUrl}/${lastArticleList[i].articleId}`);
               const comments = (backupCommentList ? backupCommentList.querySelectorAll('.comment-wrapper') : [])
                 .map(comment => { return {
                   'author': comment.querySelector('.user-info').innerText,
