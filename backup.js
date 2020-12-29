@@ -79,7 +79,7 @@ class Backup {
     const boardData = JSON.stringify(Backup.boardSettings);
     const deflatedData = zlib.deflateSync(boardData);
 
-    return write(path.join('board-backup', boardName), deflatedData);
+    return write('board-backup', boardName, deflatedData);
   }
 
   static async loadArticleBackup(boardName) {
