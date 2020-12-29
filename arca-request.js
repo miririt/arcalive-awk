@@ -85,17 +85,21 @@ class ArcaRequest {
     }
   }
 
-  static async checkSession() {    
-    const shouldLogin = await fetch('https://arca.live', {
-      method: 'GET',
-      headers: { Cookie: ArcaRequest.makeCookieString() }
-    })
-    .then(res => res.text())
-    .then(text => text.indexOf('/u/logout') == -1);
+  static async checkSession() {
+    this.lastSessionChecked = this.lastSessionChecked || 0;
+    if(this.lastSessionChecked + config.checkSessionInterval < new Date()) {
+      this.lastSessionChecked = new Date().getTime();
+      const shouldLogin = await fetch('https://arca.live', {
+        method: 'GET',
+        headers: { Cookie: ArcaRequest.makeCookieString() }
+      })
+      .then(res => res.text())
+      .then(text => text.indexOf('/u/logout') == -1);
 
-    if(shouldLogin) {
-      console.log('Session Expired');
-      await ArcaRequest.login();
+      if(shouldLogin) {
+        console.log('Session Expired');
+        await ArcaRequest.login();
+      }
     }
   }
 
