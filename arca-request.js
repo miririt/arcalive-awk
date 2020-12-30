@@ -163,8 +163,6 @@ class ArcaRequest {
       articleInfo.append('title', title);
       articleInfo.append('content', content);
 
-      console.log(articleInfo.toString());;
-
       return fetch(`${boardUrl}/write`, {
         'method': 'POST',
         headers: { Cookie: ArcaRequest.makeCookieString(), referer: `${boardUrl}/write` },
@@ -187,6 +185,34 @@ class ArcaRequest {
         'method': 'POST',
         headers: { Cookie: ArcaRequest.makeCookieString(), referer: `${articleUrl}/delete` },
         body: articleInfo
+      });
+    } catch(err) {
+      console.error(err, err.stack);
+    }
+  }
+
+  static async commentArticle(articleUrl, content) {
+    try {
+      await ArcaRequest.checkSession();
+      const articlePage = await fetch(articleUrl, {
+        'method': 'GET',
+        headers: { Cookie: ArcaRequest.makeCookieString() }
+      })
+      .then(ArcaRequest.loadCookies)
+      .then(res => res.text())
+      .then(text => htmlParser.parse(text));
+      
+      const csrfToken = articlePage.querySelector('.article-comment .write-area input').attributes.value;
+
+      const commentInfo = new url.URLSearchParams();
+      commentInfo.append('_csrf', tokens.csrf);
+      commentInfo.append('contentType', 'html');
+      commentInfo.append('content', content);
+
+      return fetch(`${articleUrl}/comment`, {
+        'method': 'POST',
+        headers: { Cookie: ArcaRequest.makeCookieString(), referer: `${boardUrl}` },
+        body: commentInfo
       });
     } catch(err) {
       console.error(err, err.stack);

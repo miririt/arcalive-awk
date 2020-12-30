@@ -77,6 +77,10 @@ class ArcaAwk {
               console.log(`Auto block user ${backupAuthor} : ${boardUrl}/${lastArticleList[i].articleId}`);
               const csrfToken = backupPage.querySelector('.user-block form input').attributes.value;
               ArcaRequest.block(`${boardUrl}/${lastArticleList[i].articleId}`, csrfToken, violatedRule.blockUntil);
+
+              if(!violatedRule.remove) {
+                ArcaRequest.commentArticle(`${boardUrl}/${lastArticleList[i].articleId}`, `arca-awk 설정값에 의해 게시글의 작성자를 자동 차단하였습니다.`);
+              }
             }
             if(violatedRule.remove) {
               console.log(`Auto delete article ${boardUrl}/${lastArticleList[i].articleId}`);
