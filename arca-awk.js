@@ -79,7 +79,7 @@ class ArcaAwk {
               ArcaRequest.block(`${boardUrl}/${lastArticleList[i].articleId}`, csrfToken, violatedRule.blockUntil);
 
               if(!violatedRule.remove) {
-                ArcaRequest.commentArticle(`${boardUrl}/${lastArticleList[i].articleId}`, `arca-awk 설정값에 의해 게시글의 작성자를 자동 차단하였습니다.`);
+                ArcaRequest.commentArticle(`${boardUrl}/${lastArticleList[i].articleId}`, `arca-awk 설정값에 의해 게시글의 작성자를 자동 차단하였습니다(차단 기간 : ${violatedRule.blockUntil}).`);
               }
             }
             if(violatedRule.remove) {
