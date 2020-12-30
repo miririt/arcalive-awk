@@ -48,6 +48,7 @@ class ArcaAwk {
 
       console.log(`Checking start ${boardUrl}`);
       const boardName = boardUrl.match(/b\/(.+)/)[1];
+      const boardRule = backup.boardSettings[boardName].rules;
       const lastArticleList = await backup.loadArticleBackup(boardName);
 
       // load article backups and check it exists
@@ -62,7 +63,7 @@ class ArcaAwk {
         const backupBodyElement = backupPage.querySelector('.article-body');
         const backupCommentList = backupPage.querySelector('.article-comment .list-area');
 
-        const violatedRule = checkViolation(backupPage, backup.boardSettings[boardName].rules);
+        const violatedRule = checkViolation(backupPage, boardRule);
 
         try {
           const loadResult = await ArcaRequest.loadArticle(boardUrl, lastArticleList[i].articleId)
@@ -136,11 +137,11 @@ class ArcaAwk {
         try {
           const articleContent = await ArcaRequest.loadArticle(boardUrl, articleIdList[i]);
           const articlePage = htmlParser.parse(articleContent);
-          // check if this article is on monitoring
-          if(!backup.boardSettings[boardName]) {
-            break;
+          //already blocked
+          if(articlePage.querySelector('.article-head .user-block time')) {
+            continue;
           }
-          if(checkViolation(articlePage, backup.boardSettings[boardName].rules)) {
+          if(checkViolation(articlePage, boardRule)) {
             articles.push({
               articleId: articleIdList[i],
               content: articleContent
