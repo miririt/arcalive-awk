@@ -120,6 +120,7 @@ app.post('/revoke', async function(req, res) {
     return;
   }
 
+  backup.saveArticleBackup(req.body.channel.match(/b\/(.+)/)[1], []);
   backup.saveBoardBackup(req.body.channel, null);
 
   res.send("ok");
