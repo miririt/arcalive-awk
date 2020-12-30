@@ -25,8 +25,8 @@ class ArcaAwk {
           return false;
         // word rule check
         if(rule.monitorWord && (
-          backupTitle.indexOf(rule.monitorWord) == -1
-          && backupBodyElement.innerText.indexOf(rule.monitorWord) == -1
+          !(RegExp(rule.monitorWord).exec(backupTitle))
+          && !(RegExp(rule.monitorWord).exec(backupBodyElement.innerText))
         ))
           return false;
         // word rule check
