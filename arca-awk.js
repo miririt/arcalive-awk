@@ -145,6 +145,9 @@ class ArcaAwk {
           if(articlePage.querySelector('.article-head .user-block time')) {
             continue;
           }
+          if(articleContent.indexOf('arca-awk 설정값에 의해 게시글의 작성자를 자동 차단하였습니다') != -1) {
+            continue;
+          }
           if(checkViolation(articlePage, boardRule)) {
             articles.push({
               articleId: articleIdList[i],
