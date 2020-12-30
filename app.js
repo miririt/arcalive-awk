@@ -69,6 +69,8 @@ app.post('/rules', async function(req, res) {
 
   if(backup.boardSettings[req.body.channel.match(/b\/(.+)/)[1]]) {
     res.send(JSON.stringify(backup.boardSettings[req.body.channel.match(/b\/(.+)/)[1]].rules));
+  } else {
+    res.send(JSON.stringify([]));
   }
 });
 app.post('/subscribe', async function(req, res) {

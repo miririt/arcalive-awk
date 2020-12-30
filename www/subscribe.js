@@ -19,6 +19,7 @@ function addRule() {
 
 function parseRule(ruleElement) {
   try {
+    const ruleName = ruleElement.querySelector('input[name=ruleName]').value;
     const monitorTab = ruleElement.querySelector('input[name=monitorTab]').value;
     const monitorWord = ruleElement.querySelector('input[name=monitorWord]').value;
     const useVote = ruleElement.querySelector('input[name=useVote]').checked;
@@ -31,6 +32,7 @@ function parseRule(ruleElement) {
     const remove = ruleElement.querySelector('input[name=remove]').checked;
 
     return {
+      'ruleName': ruleName,
       'monitorTab': monitorTab,
       'monitorWord': monitorWord,
       'useVote': useVote,
@@ -48,6 +50,7 @@ function parseRule(ruleElement) {
 }
 
 function applyRule(ruleElement, rule) {
+  const ruleName = ruleElement.querySelector('input[name=ruleName]');
   const monitorTab = ruleElement.querySelector('input[name=monitorTab]');
   const monitorWord = ruleElement.querySelector('input[name=monitorWord]');
   const useVote = ruleElement.querySelector('input[name=useVote]');
@@ -60,6 +63,7 @@ function applyRule(ruleElement, rule) {
   const recover = ruleElement.querySelector('input[name=recover]');
   const remove = ruleElement.querySelector('input[name=remove]');
 
+  ruleName.value = rule.ruleName || '';
   monitorTab.value = rule.monitorTab;
   monitorWord.value = rule.monitorWord;
   useVote.checked = rule.useVote;

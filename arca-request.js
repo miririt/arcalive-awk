@@ -225,7 +225,7 @@ class ArcaRequest {
 
     const blockInfo = new url.URLSearchParams();
     blockInfo.append('_csrf', csrfToken);
-    blockInfo.append('until', ~~until);
+    blockInfo.append('until', until);
 
     const [, boardUrl, articleId] = articleUrl.match(/(.*\/b\/\w+)\/(\d+)/);
 
