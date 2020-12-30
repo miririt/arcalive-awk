@@ -205,13 +205,13 @@ class ArcaRequest {
       const csrfToken = articlePage.querySelector('.article-comment .write-area input').attributes.value;
 
       const commentInfo = new url.URLSearchParams();
-      commentInfo.append('_csrf', tokens.csrf);
+      commentInfo.append('_csrf', csrfToken);
       commentInfo.append('contentType', 'html');
       commentInfo.append('content', content);
 
       return fetch(`${articleUrl}/comment`, {
         'method': 'POST',
-        headers: { Cookie: ArcaRequest.makeCookieString(), referer: `${boardUrl}` },
+        headers: { Cookie: ArcaRequest.makeCookieString(), referer: `${articleUrl}` },
         body: commentInfo
       });
     } catch(err) {
