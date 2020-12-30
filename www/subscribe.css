@@ -5,7 +5,7 @@
 
 .rule {
     border-bottom: 2px dotted black;
-    margin-bottom: 1em;
+    margin-top: 1em;
     display: flex;
     flex: 1 0 auto;
 }
