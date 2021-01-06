@@ -16,7 +16,7 @@ class ArcaAwk {
 
       const backupRating = backupBodyElement.querySelector('#ratingUp').innerText - backupBodyElement.querySelector('#ratingDown').innerText;
 
-      return rules.find(rule => {
+      return rules.filter(rule => {
         // tab rule check
         if(rule.monitorTab && (
           !backupPage.querySelector('.title-row .badge.badge-success')
@@ -65,6 +65,9 @@ class ArcaAwk {
 
         const violatedRule = checkViolation(backupPage, boardRule);
 
+        // Ignore bot's own article
+        if(backupAuthor == config.usernick) continue;
+
         try {
           const loadResult = await ArcaRequest.loadArticle(boardUrl, lastArticleList[i].articleId)
           .catch(err => { throw err; });
@@ -72,18 +75,20 @@ class ArcaAwk {
             throw 'Error';
           }
 
-          if(violatedRule && violatedRule.monitorStatus == 'on') {
-            if(violatedRule.blockUntil) {
+          const onStatusViolated = violatedRule.find(_ => _.monitorStatus == 'on');
+
+          if(onStatusViolated) {
+            if(onStatusViolated.blockUntil) {
               console.log(`Auto block user ${backupAuthor} : ${boardUrl}/${lastArticleList[i].articleId}`);
               const csrfToken = backupPage.querySelector('.user-block form input').attributes.value;
-              ArcaRequest.block(`${boardUrl}/${lastArticleList[i].articleId}`, csrfToken, violatedRule.blockUntil);
+              ArcaRequest.block(`${boardUrl}/${lastArticleList[i].articleId}`, csrfToken, onStatusViolated.blockUntil);
 
-              if(!violatedRule.remove) {
-                const ruleInfo = violatedRule.ruleName ? `규칙명 : ${violatedRule.ruleName}, ` : '';
+              if(!onStatusViolated.remove) {
+                const ruleInfo = onStatusViolated.ruleName ? `규칙명 : ${onStatusViolated.ruleName}, ` : '';
                 ArcaRequest.commentArticle(`${boardUrl}/${lastArticleList[i].articleId}`, `arca-awk 설정값에 의해 게시글의 작성자를 자동 차단하였습니다(${ruleInfo}차단 기간 : ${violatedRule.blockUntil}).`);
               }
             }
-            if(violatedRule.remove) {
+            if(onStatusViolated.remove) {
               console.log(`Auto delete article ${boardUrl}/${lastArticleList[i].articleId}`);
               ArcaRequest.deleteArticle(`${boardUrl}/${lastArticleList[i].articleId}`);;
             }
@@ -91,16 +96,15 @@ class ArcaAwk {
         } catch(err) {
           // 404 Not Found => article is deleted
 
-          // Ignore bot's own article
-          if(backupAuthor == config.usernick) continue;
+          const removedStatusViolated = violatedRule.find(_ => _.monitorStatus == 'on');
 
-          if(violatedRule && violatedRule.monitorStatus == 'removed') {
-            if(violatedRule.blockUntil) {
+          if(removedStatusViolated) {
+            if(removedStatusViolated.blockUntil) {
               console.log(`Auto block user ${backupAuthor} : ${boardUrl}/${lastArticleList[i].articleId}`);
               const csrfToken = backupPage.querySelector('.user-block form input').attributes.value;
-              ArcaRequest.block(`${boardUrl}/${lastArticleList[i].articleId}`, csrfToken, violatedRule.blockUntil);
+              ArcaRequest.block(`${boardUrl}/${lastArticleList[i].articleId}`, csrfToken, removedStatusViolated.blockUntil);
             }
-            if(violatedRule.recover) {
+            if(removedStatusViolated.recover) {
               console.log(`Auto recover article ${boardUrl}/${lastArticleList[i].articleId}`);
               const comments = (backupCommentList ? backupCommentList.querySelectorAll('.comment-wrapper') : [])
                 .map(comment => { return {
