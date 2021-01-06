@@ -85,7 +85,7 @@ class ArcaAwk {
 
               if(!onStatusViolated.remove) {
                 const ruleInfo = onStatusViolated.ruleName ? `규칙명 : ${onStatusViolated.ruleName}, ` : '';
-                ArcaRequest.commentArticle(`${boardUrl}/${lastArticleList[i].articleId}`, `arca-awk 설정값에 의해 게시글의 작성자를 자동 차단하였습니다(${ruleInfo}차단 기간 : ${violatedRule.blockUntil}).`);
+                ArcaRequest.commentArticle(`${boardUrl}/${lastArticleList[i].articleId}`, `arca-awk 설정값에 의해 게시글의 작성자를 자동 차단하였습니다(${ruleInfo}차단 기간 : ${onStatusViolated.blockUntil}).`);
               }
             }
             if(onStatusViolated.remove) {
